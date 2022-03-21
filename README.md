@@ -8,7 +8,13 @@ First install the needed packages:
 npm install
 ```
 
-After the command above, run this:
+You can also make a copy of .env.example file to .env.local to load certain environment variables. This is optional because there is a file app.ts that provides default values in case certain environment variables are not found (e.g. no .env.local file):
+
+```bash
+cp .env.example .env.local
+```
+
+After the commands above, run this:
 
 ```bash
 yarn dev
