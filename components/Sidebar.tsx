@@ -1,16 +1,25 @@
 import React, {
   FunctionComponent,
   useState,
-  MouseEvent,
   ChangeEvent,
+  useContext,
+  useEffect,
 } from "react";
 import useSWR from "swr";
 import Loader from "./Loader";
+import { FiltersContext } from "../context/FiltersContext";
 
 interface Category {
   id: number;
   name: string;
 }
+
+type Props = {
+  priceRange: {
+    lowestPrice: number;
+    highestPrice: number;
+  };
+};
 
 const fetcher = async (
   input: RequestInfo,
@@ -21,21 +30,42 @@ const fetcher = async (
   return res.json();
 };
 
-const Sidebar: FunctionComponent = () => {
-  const [price, setPrice] = useState(250);
+const Sidebar: FunctionComponent<Props> = ({ priceRange }) => {
+  const { updateFilters } = useContext(FiltersContext);
+  const { lowestPrice, highestPrice } = priceRange;
+  const [maxPrice, setMaxPrice] = useState(highestPrice);
+  const [categoryIds, setCategoryIds] = useState<Array<number>>([]);
 
-  const handleMouseUp = (e: MouseEvent) => {
-    // e.preventDefault();
-    console.log(price);
-    // setPrice(value);
+  const handleMouseUp = () => updateFilters("maxPrice", maxPrice);
+
+  const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setMaxPrice(parseInt(e.currentTarget.value));
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    console.log(parseInt(e.currentTarget.value));
-    setPrice(parseInt(e.currentTarget.value));
+  const handleCatChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const id = parseInt(e.currentTarget.id);
+    let updatedCategoryIds;
+
+    if (categoryIds.includes(id)) {
+      updatedCategoryIds = categoryIds.filter(
+        (categoryId) => categoryId !== id
+      );
+      setCategoryIds(updatedCategoryIds);
+    } else {
+      updatedCategoryIds = [...categoryIds, id];
+      setCategoryIds(updatedCategoryIds);
+    }
+
+    updateFilters("categories", updatedCategoryIds);
   };
 
   const { data: categories, error } = useSWR("/api/categories", fetcher);
+
+  useEffect(() => {
+    if (categories) {
+      setCategoryIds(categories.map((category: any) => category.id));
+    }
+  }, [categories]);
 
   if (error) {
     return (
@@ -58,8 +88,16 @@ const Sidebar: FunctionComponent = () => {
             return (
               <div key={id}>
                 <div className="form-check">
-                  <input type="checkbox" id={name} />
-                  <label className="inline-block text-gray-500" htmlFor={name}>
+                  <input
+                    type="checkbox"
+                    id={id.toString()}
+                    defaultChecked
+                    onChange={handleCatChange}
+                  />
+                  <label
+                    className="inline-block text-gray-500"
+                    htmlFor={id.toString()}
+                  >
                     {name}
                   </label>
                 </div>
@@ -70,21 +108,21 @@ const Sidebar: FunctionComponent = () => {
       </section>
       <section className="pl-16 py-8">
         <h1 className="font-semibold pb-5">Price range</h1>
-        <small className="block font-semibold pb-1">€{price}</small>
+        <small className="block font-semibold pb-1">€{maxPrice}</small>
         <div className="relative pt-1 w-3/4">
           <input
             type="range"
             className="w-full"
-            min={250}
-            max={979}
-            value={price}
+            min={lowestPrice}
+            max={highestPrice}
+            value={maxPrice}
             id="price_range"
-            onChange={handleChange}
+            onChange={handlePriceChange}
             onMouseUp={handleMouseUp}
           />
           <div className="flex justify-between">
-            <small>€250</small>
-            <small>€979</small>
+            <small>€{lowestPrice}</small>
+            <small>€{highestPrice}</small>
           </div>
         </div>
       </section>

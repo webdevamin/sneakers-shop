@@ -5,14 +5,18 @@ import Link from "next/link";
 import { FiltersContext } from "../context/FiltersContext";
 
 const Header: FunctionComponent = () => {
-  const filtersContext = useContext(FiltersContext);
-  console.log(filtersContext);
-  const [query, setQuery] = useState(
-    filtersContext ? filtersContext.query : ""
-  );
+  const { updateFilters } = useContext(FiltersContext);
+  const [query, setQuery] = useState("");
 
-  const onSubmit = (e: React.FormEvent) => {};
-  const onChange = (e: React.FormEvent<HTMLInputElement>) => {};
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateFilters("query", query);
+  };
+
+  const onChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const { value } = e.target as HTMLTextAreaElement;
+    setQuery(value);
+  };
 
   return (
     <header className="flex justify-between items-center px-16 py-8 border-b border-gray-100 shadow-sm">

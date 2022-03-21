@@ -1,31 +1,39 @@
 import { createContext, FunctionComponent, useState } from "react";
 
-interface Filters {
+export interface Filters {
   query: string;
-  priceRange: string;
+  maxPrice: number;
   categories: Array<number>;
 }
 
-const initFilters: Filters = {
-  query: "",
-  priceRange: "",
-  categories: [],
+export type FiltersContextType = {
+  filters: Filters;
+  updateFilters: (key: any, value: any) => void;
 };
 
-const FiltersContext = createContext<Filters | null>(initFilters);
+const defaultValues: FiltersContextType = {
+  filters: {
+    query: "",
+    maxPrice: 0,
+    categories: [],
+  },
+  updateFilters: () => {},
+};
+
+export const FiltersContext = createContext<FiltersContextType>(defaultValues);
 
 const FiltersContextProvider: FunctionComponent = ({ children }) => {
-  const [filters, setFilters] = useState(initFilters);
+  const [filters, setFilters] = useState<Filters>(defaultValues.filters);
 
-  const updateFilters = (prop: any) => {
-    setFilters()
-  }
+  const updateFilters = (key: any, value: any) => {
+    setFilters({ ...filters, [key]: value });
+  };
 
   return (
-    <FiltersContext.Provider value={filters}>
+    <FiltersContext.Provider value={{ filters, updateFilters }}>
       {children}
     </FiltersContext.Provider>
   );
 };
 
-export { FiltersContext, FiltersContextProvider };
+export default FiltersContextProvider;
