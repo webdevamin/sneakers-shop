@@ -52,20 +52,26 @@ const Home: NextPage<Props> = ({ items }) => {
     <Layout>
       <Seo />
       <Sidebar priceRange={{ lowestPrice, highestPrice }} />
-      <section
-        className="grow px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-20 border-l-2 
-      border-gray-100 py-10"
-      >
-        <h1 className="text-2xl font-bold mb-10">New Arrivals</h1>
+      {filteredItems.length ? (
         <section
-          className="grid gap-3 grid-cols-1 lg:grid-cols-2 
-         xl:grid-cols-3 2xl:grid-cols-4"
+          className="grow px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-20 border-l-2 
+          border-gray-100 py-10"
         >
-          {filteredItems.map((item, index) => (
-            <Item key={index} item={item} />
-          ))}
+          <h1 className="text-2xl font-bold mb-10">New Arrivals</h1>
+          <section
+            className="grid gap-3 grid-cols-1 lg:grid-cols-2 
+             xl:grid-cols-3 2xl:grid-cols-4"
+          >
+            {filteredItems.map((item, index) => (
+              <Item key={index} item={item} />
+            ))}
+          </section>
         </section>
-      </section>
+      ) : (
+        <p className="text-center w-full pt-20 font-semibold text-lg">
+          Please change the filters to see your desired results.
+        </p>
+      )}
     </Layout>
   );
 };
